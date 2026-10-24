@@ -79,7 +79,7 @@ data/         datasets (git-ignored): siftsmall (10K, tests), sift (1M, benchmar
 ```
 
 ## Metric decisions already made (see README decision log)
-- Supported metrics: L2 and inner product. Cosine = normalize, then inner product.
+- One squared-L2 kernel. Cosine = normalize on insert and query, then L2 (on unit vectors ‖a−b‖² = 2 − 2cos θ). No inner-product kernel unless MIPS is needed.
 - Squared L2 internally; sqrt only on the k returned results if values are exposed.
 - Normalize at insert time (protects rankings) and at query time (protects score values).
 - Zero vectors can't be normalized: reject them under cosine.

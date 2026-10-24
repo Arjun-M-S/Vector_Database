@@ -1,3 +1,5 @@
 build/
 data/
 compile_commands.json
+.serena/
+.vscode/
