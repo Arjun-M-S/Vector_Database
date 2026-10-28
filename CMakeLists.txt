@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_library(vecdb src/dataset.cpp src/distance.cpp)
+add_library(vecdb src/dataset.cpp src/distance.cpp src/brute_force.cpp)
 target_include_directories(vecdb PUBLIC include)
 target_compile_options(vecdb PRIVATE -Wall -Wextra -Wpedantic)
 
@@ -20,7 +20,7 @@ if(BUILD_TESTING)
     FIND_PACKAGE_ARGS NAMES GTest)
   FetchContent_MakeAvailable(googletest)
 
-  add_executable(vecdb_tests tests/dataset_test.cpp tests/distance_test.cpp)
+  add_executable(vecdb_tests tests/dataset_test.cpp tests/distance_test.cpp tests/brute_force_test.cpp)
   target_link_libraries(vecdb_tests PRIVATE vecdb GTest::gtest_main)
   target_compile_definitions(vecdb_tests PRIVATE VECDB_DATA_DIR="${CMAKE_SOURCE_DIR}/data")
 
