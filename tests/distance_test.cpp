@@ -25,6 +25,7 @@ TEST(Distance , IsSymmetrical){
     float ans2 = vecdb::squared_l2(vec2, vec1); 
     EXPECT_FLOAT_EQ(ans , ans2);
 }
+
 TEST(Distance , IdenticalVectorsGiveZero){ 
     std::vector<float> vec1 = {1.0f , 1.0f};
     std::vector<float> vec2 = {1.0f, 1.0f}; 
