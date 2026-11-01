@@ -13,7 +13,6 @@ float squared_l2(std::span<const float> a , std::span<const float> b){
         float diff = a[i] - b[i]; 
         sum += diff*diff;
     }
-
     return sum; 
 }
 }
