@@ -19,10 +19,10 @@ namespace vecdb {
             std::vector<float> vectors_; 
             std::size_t n_ = 0; 
             std::size_t d_; 
-            std::vector<int> levels_; 
+            std::vector<int> levels_; // top level of each node
             std::uint32_t entry_point_ = 0;
             std::vector<std::uint32_t> level_0_links_; 
-            std::vector<std::uint32_t> level_0_count_; 
+            std::vector<std::uint32_t> level_0_count_; // how many neighbours each id has uint32
             std::vector<std::vector<std::vector<std::uint32_t>>> upper_links_; 
             int max_level_ = -1; 
             std::size_t M_; 
@@ -35,7 +35,7 @@ namespace vecdb {
             int random_level(); 
             std::vector<Neighbor> search_layer(std::span<const float> query, const std::vector<Neighbor>& entry_points, std::size_t ef, int layer) const;
             std::span<const float> vector_of(std::uint32_t id) const;
-
+            void add_link(std::uint32_t from, std::uint32_t to, int layer); 
     };
 
 }
