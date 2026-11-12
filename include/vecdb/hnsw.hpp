@@ -36,6 +36,7 @@ namespace vecdb {
             std::vector<Neighbor> search_layer(std::span<const float> query, const std::vector<Neighbor>& entry_points, std::size_t ef, int layer) const;
             std::span<const float> vector_of(std::uint32_t id) const;
             void add_link(std::uint32_t from, std::uint32_t to, int layer); 
+            std::vector<Neighbor> select_neighbors(const std::vector<Neighbor>& candidates,std::size_t limit) const;
     };
 
 }

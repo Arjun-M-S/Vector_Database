@@ -33,8 +33,9 @@ Never benchmark the `asan` build: sanitizers slow code down several times over.
 | 4 | Two CMake presets: `release` (`-O2`) and `asan` (debug + ASan + UBSan) | One build with flags toggled by hand | Makes it hard to benchmark a sanitized build by accident. |
 | 5 | siftsmall (10k) for tests, SIFT1M for benchmarks; datasets git-ignored and fetched by script | Synthetic random vectors only | Standard datasets with published ground truth make results comparable. |
 | 6 | Loader reads the whole file into one flat `std::vector<float>` | `vector<vector<float>>`; memory-mapping | Contiguous storage is cache-friendly (details to be measured in the brute-force phase). SIFT1M is ~500 MB, which fits in RAM, so mmap is unneeded complexity for now. |
-7. The test on siftsmall for bruteforce knn at k = 100 uses distances to compare rather than ids due to tie breakers not being in the same order. 
-8. Search Layer -> has a std::vector<bool> thats zeroed out. can change in the future
+| 7 | Brute-force siftsmall test at k = 100 compares distances, not ids | Compare result ids exactly against ground truth | Ties at equal distance are not broken in the same order as the ground-truth file. |
+| 8 | `search_layer` tracks visited nodes with a zeroed `std::vector<bool>` per call | Reusable visited list (e.g. epoch counter, as in hnswlib) | Simplest correct version; can change in the future. |
+| 9 | Neighbor selection: HNSW heuristic | Keep the M closest | On SIFT10K, recall@10 at efSearch = 10 rose from 0.913 to 0.933; at efSearch = 50, no change (0.996). Extra cost at build time only, to be measured in Phase 5. |
 
 ## Benchmark results
 

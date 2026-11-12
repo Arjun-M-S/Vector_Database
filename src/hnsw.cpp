@@ -105,6 +105,38 @@ namespace vecdb{
     }
 
 
+
+
+    std::vector<Neighbor> HNSW::select_neighbors(const std::vector<Neighbor>& candidates, std::size_t limit) const{
+        std::vector<Neighbor> res; 
+        if (candidates.size() == 0){ 
+            return {}; 
+        }
+        res.push_back(candidates[0]);  
+        for (std::size_t i = 1 ; i < candidates.size() ; i++){ 
+            if (res.size() >= limit){ 
+                break; 
+            }
+            else{ 
+                bool flag = true; 
+                for (const Neighbor& chosen : res){
+                    if (squared_l2(vector_of(static_cast<std::uint32_t>(candidates[i].id)),vector_of(static_cast<std::uint32_t>(chosen.id))) <= candidates[i].dist){ 
+                        flag = false;
+                        break;  
+                    }
+
+                }
+
+                if (flag == true){ 
+                    res.push_back(candidates[i]); 
+                }
+            }
+        }
+
+        return res; 
+
+    }
+
     void HNSW::add_link(std::uint32_t from , std::uint32_t to , int layer){ 
         if (layer == 0){ 
             if (level_0_count_[from] == Mmax0_){ 
@@ -119,11 +151,12 @@ namespace vecdb{
                 }
 
                 std::sort(distances.begin() , distances.end());
-                distances.pop_back(); 
+                std::vector<Neighbor> kept = select_neighbors(distances , Mmax0_); 
                 std::size_t start = from * Mmax0_; 
-                for(std::size_t i = 0 ; i < Mmax0_ ; i++){ 
-                    level_0_links_[start + i] = static_cast<std::uint32_t> (distances[i].id); 
+                for(std::size_t i = 0 ; i < kept.size() ; i++){ 
+                    level_0_links_[start + i] = static_cast<std::uint32_t> (kept[i].id); 
                 }
+                level_0_count_[from] = kept.size(); 
             }
             else{ 
                 std::uint32_t count = level_0_count_[from]; 
@@ -143,10 +176,12 @@ namespace vecdb{
                     distances.push_back(Neighbor { squared_l2(from_vector , vector_of(id)) , id}); 
                 } 
                 std::sort(distances.begin() , distances.end()); 
-                for(std::size_t i = 0; i < upper_links_[from][layer-1].size() ; i ++){ 
-                    upper_links_[from][layer-1][i] = static_cast<std::uint32_t>(distances[i].id); 
+                std::vector<Neighbor> kept = select_neighbors(distances , Mmax_); 
+                upper_links_[from][layer - 1].clear(); 
+                for (Neighbor neighbor : kept){ 
+                    upper_links_[from][layer-1].push_back(static_cast<uint32_t> (neighbor.id)); 
                 }
-                upper_links_[from][layer-1].pop_back(); 
+
             } 
         }
     }
@@ -182,10 +217,10 @@ namespace vecdb{
 
         for (int i = std::min(level,max_level_) ; i >= 0 ; i--){ 
             ep = search_layer(v , ep , ef_construction_ , i);
-            std::size_t count = std::min(ep.size() , Mmax_);            
-            for (std::size_t j = 0 ; j < count ; j ++){
-                add_link(id , static_cast<std::uint32_t>(ep[j].id) , i); 
-                add_link(static_cast<std::uint32_t>(ep[j].id) , id , i); 
+            std::vector<Neighbor> chosen = select_neighbors(ep, M_);
+            for (std::size_t j = 0 ; j < chosen.size() ; j ++){
+                add_link(id , static_cast<std::uint32_t>(chosen[j].id) , i); 
+                add_link(static_cast<std::uint32_t>(chosen[j].id) , id , i); 
             }
         }
 
@@ -220,5 +255,6 @@ namespace vecdb{
 
 
     }
+
 
 }

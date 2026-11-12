@@ -20,7 +20,7 @@ if(BUILD_TESTING)
     FIND_PACKAGE_ARGS NAMES GTest)
   FetchContent_MakeAvailable(googletest)
 
-  add_executable(vecdb_tests tests/dataset_test.cpp tests/distance_test.cpp tests/brute_force_test.cpp)
+  add_executable(vecdb_tests tests/dataset_test.cpp tests/distance_test.cpp tests/brute_force_test.cpp tests/hnsw_test.cpp)
   target_link_libraries(vecdb_tests PRIVATE vecdb GTest::gtest_main)
   target_compile_definitions(vecdb_tests PRIVATE VECDB_DATA_DIR="${CMAKE_SOURCE_DIR}/data")
 
