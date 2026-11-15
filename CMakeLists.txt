@@ -10,6 +10,16 @@ add_library(vecdb src/dataset.cpp src/distance.cpp src/brute_force.cpp src/hnsw.
 target_include_directories(vecdb PUBLIC include)
 target_compile_options(vecdb PRIVATE -Wall -Wextra -Wpedantic)
 
+# Benchmark numbers only mean something from the release preset, so never build the
+# harness with sanitizers (the binary also refuses to run if unoptimized).
+if(CMAKE_CXX_FLAGS MATCHES "-fsanitize")
+  message(WARNING "Sanitizer flags set: bench_hnsw is NOT built. Benchmark with the release preset.")
+else()
+  add_executable(bench_hnsw bench/bench_hnsw.cpp)
+  target_link_libraries(bench_hnsw PRIVATE vecdb)
+  target_compile_options(bench_hnsw PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
 include(CTest)
 if(BUILD_TESTING)
   # Uses an installed GoogleTest if there is one, otherwise downloads this pinned version.

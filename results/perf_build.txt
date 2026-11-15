@@ -1,0 +1,71 @@
+# perf profile: vecdb HNSW, build phase
+# date: 2026-11-15T15:15:50+05:30  git: bf2cefa (uncommitted changes)
+# binary: build/profile/bench_hnsw  (-O2 -DNDEBUG -g -fno-omit-frame-pointer: release flags + debug info + frame pointers)
+# run: taskset -c 2 bench_hnsw --ef-search 128 --bf-queries 0   (SIFT1M, M=16, efC=200, seed 42, k=10, 1 thread; CPU 2 is a P-core)
+# record: perf record -e cpu_core/cycles/u -F 999 --call-graph fp -p <pid>, attached for the build phase only
+#   build = start of the process until the 1,000,000th insert (includes loading the data files)
+#   query = after the build until exit: 1 recall pass + 100 warm-up + 5 timed passes over 10K queries at efSearch=128
+# governor: powersave. Timings under perf are NOT benchmark numbers (this run: build 778.15 s, ef=128 QPS 1893.8).
+
+## perf report --no-children --sort dso,symbol -g none --percent-limit 0.1
+# Total Lost Samples: 0
+# Samples: 733K of event 'cpu_core/cycles/u'
+# Event count (approx.): 3399387355756
+    87.47%  bench_hnsw           [.] vecdb::squared_l2(std::span<float const, 18446744073709551615ul>, std::span<float const, 18446744073709551615ul>)
+     7.71%  bench_hnsw           [.] vecdb::HNSW::search_layer(std::span<float const, 18446744073709551615ul>, std::vector<vecdb::Neighbor, std::allocator<vecdb::Neighbor> > const&, unsigned long, int) const
+     3.55%  bench_hnsw           [.] vecdb::HNSW::neighbors(unsigned int, int) const
+     0.45%  libc.so.6            [.] 0x00000000001b2453
+     0.24%  bench_hnsw           [.] vecdb::HNSW::select_neighbors(std::vector<vecdb::Neighbor, std::allocator<vecdb::Neighbor> > const&, unsigned long) const
+     0.13%  bench_hnsw           [.] vecdb::HNSW::add_link(unsigned int, unsigned int, int)
+
+## perf annotate squared_l2 (percent of samples inside squared_l2)
+    0.13 :   129c0:  mov    %rsi,%r8
+    0.00 :   129c3:  mov    %rdx,%rcx
+    0.00 :   129c6:  test   %rsi,%rsi
+    0.00 :   129c9:  je     12a68 <squared_l2>, std::span<float const, 18446744073709551615ul>)+0xa8>
+    0.01 :   129cf:  lea    -0x1(%rsi),%rax
+    0.01 :   129d3:  cmp    $0x2,%rax
+    0.00 :   129d7:  jbe    12a71 <squared_l2>, std::span<float const, 18446744073709551615ul>)+0xb1>
+    0.00 :   129dd:  mov    %rsi,%rdx
+    0.00 :   129e0:  xor    %eax,%eax
+    0.01 :   129e2:  pxor   %xmm0,%xmm0
+    0.14 :   129e6:  shr    $0x2,%rdx
+    0.00 :   129ea:  mov    %rdx,%rsi
+    0.00 :   129ed:  shl    $0x4,%rsi
+    0.00 :   129f1:  nopl   0x0(%rax)
+    0.02 :   129f5:  data16 cs nopw 0x0(%rax,%rax,1)
+    0.06 :   12a00:  movups (%rdi,%rax,1),%xmm1
+   69.42 :   12a04:  movups (%rcx,%rax,1),%xmm3
+    0.55 :   12a08:  add    $0x10,%rax
+    0.18 :   12a0c:  subps  %xmm3,%xmm1
+    1.24 :   12a0f:  mulps  %xmm1,%xmm1
+    1.17 :   12a12:  addss  %xmm1,%xmm0
+    7.54 :   12a16:  movaps %xmm1,%xmm2
+    0.01 :   12a19:  shufps $0x55,%xmm1,%xmm2
+    1.01 :   12a1d:  addss  %xmm2,%xmm0
+    5.39 :   12a21:  movaps %xmm1,%xmm2
+    0.00 :   12a24:  unpckhps %xmm1,%xmm2
+    0.06 :   12a27:  shufps $0xff,%xmm1,%xmm1
+    0.10 :   12a2b:  addss  %xmm2,%xmm0
+    6.83 :   12a2f:  addss  %xmm1,%xmm0
+    6.11 :   12a33:  cmp    %rsi,%rax
+    0.00 :   12a36:  jne    12a00 <squared_l2>, std::span<float const, 18446744073709551615ul>)+0x40>
+    0.00 :   12a38:  lea    0x0(,%rdx,4),%rax
+    0.00 :   12a40:  cmp    %rax,%r8
+    0.00 :   12a43:  je     12a70 <squared_l2>, std::span<float const, 18446744073709551615ul>)+0xb0>
+    0.00 :   12a45:  movss  (%rdi,%rax,4),%xmm1
+    0.00 :   12a4a:  subss  (%rcx,%rax,4),%xmm1
+    0.00 :   12a4f:  add    $0x1,%rax
+    0.00 :   12a53:  mulss  %xmm1,%xmm1
+    0.00 :   12a57:  addss  %xmm1,%xmm0
+    0.00 :   12a5b:  cmp    %r8,%rax
+    0.00 :   12a5e:  jb     12a45 <squared_l2>, std::span<float const, 18446744073709551615ul>)+0x85>
+    0.00 :   12a60:  ret
+    0.00 :   12a61:  nopl   0x0(%rax)
+    0.00 :   12a68:  pxor   %xmm0,%xmm0
+    0.00 :   12a6c:  ret
+    0.00 :   12a6d:  nopl   (%rax)
+    0.01 :   12a70:  ret
+    0.00 :   12a71:  xor    %eax,%eax
+    0.00 :   12a73:  pxor   %xmm0,%xmm0
+    0.00 :   12a77:  jmp    12a45 <squared_l2>, std::span<float const, 18446744073709551615ul>)+0x85>

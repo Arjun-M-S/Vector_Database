@@ -18,7 +18,6 @@ These files are written by the developer, by hand:
 - `include/vecdb/hnsw.hpp` and `src/hnsw.cpp` — HNSW: graph structure, level assignment,
   layer search, neighbor selection, insert, multi-layer search
 - `tests/distance_test.cpp`, `tests/brute_force_test.cpp`, `tests/hnsw_test.cpp`
-- Benchmark *methodology* (what is measured and how): `bench/` measurement logic
 
 Rules for the owned core:
 1. Never create, write, edit, or refactor code in these files — not even "small fixes",

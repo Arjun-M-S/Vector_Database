@@ -3,3 +3,5 @@ data/
 compile_commands.json
 .serena/
 .vscode/
+.venv/
+.conda-hnswlib/

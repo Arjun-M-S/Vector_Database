@@ -12,6 +12,16 @@
       }
     },
     {
+      "name": "profile",
+      "displayName": "Release flags + debug info + frame pointers (for perf)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/profile",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_FLAGS_RELEASE": "-O2 -DNDEBUG -g -fno-omit-frame-pointer"
+      }
+    },
+    {
       "name": "asan",
       "displayName": "Debug + AddressSanitizer + UBSan (for tests)",
       "generator": "Ninja",
@@ -24,6 +34,7 @@
   ],
   "buildPresets": [
     { "name": "release", "configurePreset": "release" },
+    { "name": "profile", "configurePreset": "profile" },
     { "name": "asan", "configurePreset": "asan" }
   ],
   "testPresets": [

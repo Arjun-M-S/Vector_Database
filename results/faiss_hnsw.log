@@ -1,0 +1,14 @@
+=== faiss start 2026-11-14T18:28:56+05:30
+note: faiss has no seed parameter; --seed is ignored
+data: sift base 1000000x128, 10000 queries, threads 1, python 3.14.7
+python + binding per-call overhead (search on a 10-vector index): p50 3.01 us
+build: 308.14 s, peak RSS 1189.0 MiB
+engine,M,ef_construction,ef_search,k,recall,qps_median,qps_min,qps_max,p50_us,p99_us,build_s,threads,peak_mem_mb
+faiss_hnsw,16,200,10,10,0.7157,32061.0,31742.8,32836.7,30.07,49.23,308.14,1,1189.0
+faiss_hnsw,16,200,16,10,0.8075,24512.9,24433.6,24989.6,39.93,62.31,308.14,1,1189.0
+faiss_hnsw,16,200,32,10,0.9108,15133.2,15118.9,15166.1,66.18,91.47,308.14,1,1189.0
+faiss_hnsw,16,200,64,10,0.9675,8720.7,8686.7,8734.9,117.26,145.32,308.14,1,1189.0
+faiss_hnsw,16,200,128,10,0.9904,4703.8,4700.1,4717.3,218.71,260.45,308.14,1,1189.0
+faiss_hnsw,16,200,256,10,0.9974,2499.2,2493.9,2502.3,412.63,491.99,308.14,1,1189.0
+faiss_hnsw,16,200,512,10,0.9990,1285.4,1284.3,1287.4,800.92,957.27,308.14,1,1189.0
+=== exit 0 at 2026-11-14T18:35:43+05:30

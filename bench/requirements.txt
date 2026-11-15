@@ -1,0 +1,5 @@
+# Python side of the benchmark (bench/compare.py, bench/plot.py). Binary wheels only:
+#   uv venv --python 3.14 .venv && uv pip install --python .venv/bin/python --only-binary :all: -r bench/requirements.txt
+faiss-cpu==1.16.0
+numpy==2.5.4
+matplotlib==3.11.2
